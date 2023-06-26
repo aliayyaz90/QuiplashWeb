@@ -5,8 +5,17 @@ const create = async (req, res) => {
         const data = await lobbyService.create(req);
         res.send(data);
     } catch (error) {
-        setResponse(res, { type: 'serverError' });
+        res.send(error);
     }
 };
 
-module.exports = { create };
+const join = async (req, res) => {
+    try {
+        const data = await lobbyService.join(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+module.exports = { create,join };
