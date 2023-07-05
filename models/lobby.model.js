@@ -29,6 +29,10 @@ const lobbySchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Round',
     },
+    lobbyLocked: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const Lobby = mongoose.model('lobby', lobbySchema);

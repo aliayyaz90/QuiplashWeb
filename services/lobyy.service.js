@@ -8,32 +8,33 @@ const create = async (req, res) => {
 
         // Create a new user
         const user = await User.create(body);
+        if (user) {
+            // Generate a unique lobby code
+            let lobbyCode = generateUniqueLobbyCode();
 
-        // Generate a unique lobby code
-        let lobbyCode = generateUniqueLobbyCode();
+            // Check if the code is unique
+            while (usedCodes.has(lobbyCode)) {
+                lobbyCode = generateUniqueLobbyCode();
+            }
 
-        // Check if the code is unique
-        while (usedCodes.has(lobbyCode)) {
-            lobbyCode = generateUniqueLobbyCode();
+            // Store the code in the used codes set
+            usedCodes.add(lobbyCode);
+
+            // Create a lobby associated with the user
+            const lobbyData = {
+                lobbyCode,
+                lobbyCreator: user._id,
+                playerList: [user._id]
+            };
+
+            // Create the lobby
+            const lobby = await Lobby.create(lobbyData);
+
+            // Populate the lobby with associated user and player data
+            await lobby.populate(['lobbyCreator', 'playerList']);
+            return lobby;
         }
 
-        // Store the code in the used codes set
-        usedCodes.add(lobbyCode);
-
-        // Create a lobby associated with the user
-        const lobbyData = {
-            lobbyCode,
-            lobbyCreator: user._id,
-            playerList: [user._id]
-        };
-
-        // Create the lobby
-        const lobby = await Lobby.create(lobbyData);
-
-        // Populate the lobby with associated user and player data
-        await lobby.populate(['lobbyCreator', 'playerList']);
-
-        return lobby;
     } catch (error) {
         console.log(error);
         throw error;
@@ -69,6 +70,12 @@ const join = async (req, res) => {
         let findLobby = await Lobby.findOne({ lobbyCode: lobbyCode });
 
         if (findLobby) {
+
+            // Check if the lobby is already locked
+            if (findLobby.lobbyLocked) {
+                return 'Lobby is already locked.';
+            }
+
             // Generate a random name for the user
             const randomName = generateRandomName();
 
@@ -109,4 +116,44 @@ function generateRandomName() {
     return randomAdjective + " " + randomNoun;
 }
 
-module.exports = { create, join };
+const play = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        // Check if the user exists
+        const user = await User.findOne({ _id: id });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Check if the user has already created a lobby
+        const lobby = await Lobby.findOne({ lobbyCreator: id });
+        if (!lobby) {
+            return 'You need to create a lobby first.';
+        }
+
+        // Check if the lobby has at least 3 players
+        if (lobby.playerList.length < 3) {
+            return 'You need at least 3 players to perform this action.';
+        }
+
+        // Update the user's canPlayGame property to true
+        const updatedUser = await User.findByIdAndUpdate(id, { canPlayGame: true }, { new: true });
+
+        // Lock the lobby
+        const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
+
+        // Return the success response
+        return {
+            code: 'success',
+            message: 'Game played successfully.',
+            lobby: updatedLobby,
+            lobbyCreator: updatedUser,
+        };
+    } catch (error) {
+        return 'Internal server error.';
+    }
+};
+
+
+module.exports = { create, join, play };
