@@ -123,7 +123,7 @@ const play = async (req, res) => {
         // Check if the user exists
         const user = await User.findOne({ _id: id });
         if (!user) {
-            return res.status(404).json({ error: 'User not found.' });
+            return 'User not found.';
         }
 
         // Check if the user has already created a lobby
@@ -155,5 +155,30 @@ const play = async (req, res) => {
     }
 };
 
+const status = async (req, res) => {
+    try {
+        const { lobbyId, userId, status } = req.body;
 
-module.exports = { create, join, play };
+        const lobby = await Lobby.findOne({ _id: lobbyId });
+
+        if (!lobby) {
+            return 'lobby not found.';
+        }
+        if (!status && lobby.playerList.includes(userId)) {
+            lobby.playerList = lobby.playerList.remove(userId);
+            if (lobby.lobbyCreator.toString() === userId) {
+                lobby.lobbyCreator = lobby.playerList[0];
+            }
+            await lobby.save();
+            return lobby;
+        } else {
+            return lobby
+        }
+
+    } catch (error) {
+        return 'Internal server error.';
+    }
+};
+
+
+module.exports = { create, join, play, status };
