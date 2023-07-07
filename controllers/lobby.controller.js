@@ -18,4 +18,22 @@ const join = async (req, res) => {
     }
 };
 
-module.exports = { create,join };
+const play = async (req, res) => {
+    try {
+        const data = await lobbyService.play(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const status = async (req, res) => {
+    try {
+        const data = await lobbyService.status(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+module.exports = { create,join,play,status };
