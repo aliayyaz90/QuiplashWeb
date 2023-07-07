@@ -142,13 +142,13 @@ const play = async (req, res) => {
 
         // Lock the lobby
         const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
+        const lastIndex = updatedLobby.rounds - 1;
 
         // Return the success response
         return {
             code: 'success',
-            message: 'Game played successfully.',
-            lobby: updatedLobby,
-            lobbyCreator: updatedUser,
+            message: `Game Round ${updatedLobby.rounds[lastIndex]} has started! Get ready to test your skills and knowledge. Good luck to all participants!`,
+            lobby: updatedLobby
         };
     } catch (error) {
         return 'Internal server error.';
