@@ -1,8 +1,11 @@
 const { Lobby, User } = require("../models");
+const { lobbyHelper } = require("../helpers");
+const Constants = require('../utils/constants');
 
 const usedCodes = new Set();
 
-const create = async (req, res) => {
+// create a lobby
+const createLobby = async (req, res) => {
     try {
         const { body } = req;
 
@@ -10,11 +13,11 @@ const create = async (req, res) => {
         const user = await User.create(body);
         if (user) {
             // Generate a unique lobby code
-            let lobbyCode = generateUniqueLobbyCode();
+            let lobbyCode = await lobbyHelper.generateUniqueLobbyCode();
 
             // Check if the code is unique
             while (usedCodes.has(lobbyCode)) {
-                lobbyCode = generateUniqueLobbyCode();
+                lobbyCode = await lobbyHelper.generateUniqueLobbyCode();
             }
 
             // Store the code in the used codes set
@@ -41,28 +44,8 @@ const create = async (req, res) => {
     }
 };
 
-function generateUniqueLobbyCode() {
-    // Define the characters to be used in the lobby code
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-    // Initialize an empty string to store the generated code
-    var code = '';
-
-    // Generate a 6-character code
-    for (var i = 0; i < 6; i++) {
-        // Select a random index from the characters string
-        var randomIndex = Math.floor(Math.random() * characters.length);
-
-        // Retrieve the character at the random index and append it to the code string
-        code += characters.charAt(randomIndex);
-    }
-
-    // Return the generated code
-    return code;
-}
-
-
-const join = async (req, res) => {
+// join lobby with lobby code
+const joinLobby = async (req, res) => {
     try {
         const { lobbyCode } = req.body;
 
@@ -73,11 +56,11 @@ const join = async (req, res) => {
 
             // Check if the lobby is already locked
             if (findLobby.lobbyLocked) {
-                return 'Lobby is already locked.';
+                return Constants.LOBBY_LOCKED;
             }
 
             // Generate a random name for the user
-            const randomName = generateRandomName();
+            const randomName = await lobbyHelper.generateRandomName();
 
             // Create a new user with the random name
             const user = await User.create({ name: randomName });
@@ -99,42 +82,26 @@ const join = async (req, res) => {
     }
 };
 
-function generateRandomName() {
-    // Array of adjectives to choose from
-    const adjectives = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"];
-
-    // Array of nouns to choose from
-    const nouns = ["Cat", "Dog", "Bird", "Lion", "Tiger", "Bear"];
-
-    // Select a random adjective from the array
-    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-
-    // Select a random noun from the array
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-
-    // Return the combination of the random adjective and noun as the generated random name
-    return randomAdjective + " " + randomNoun;
-}
-
-const play = async (req, res) => {
+// play lobby
+const playLobby = async (req, res) => {
     try {
         const { id } = req.body;
 
         // Check if the user exists
         const user = await User.findOne({ _id: id });
         if (!user) {
-            return 'User not found.';
+            return Constants.USER_NOT_FOUND;
         }
 
         // Check if the user has already created a lobby
         const lobby = await Lobby.findOne({ lobbyCreator: id });
         if (!lobby) {
-            return 'You need to create a lobby first.';
+            return Constants.CREATE_LOBBY_FIRST;
         }
 
         // Check if the lobby has at least 3 players
         if (lobby.playerList.length < 3) {
-            return 'You need at least 3 players to perform this action.';
+            return Constants.MINIMUM_PLAYERS_REQUIRED;
         }
 
         // Update the user's canPlayGame property to true
@@ -142,43 +109,18 @@ const play = async (req, res) => {
 
         // Lock the lobby
         const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
-        const lastIndex = updatedLobby.rounds - 1;
 
         // Return the success response
         return {
             code: 'success',
-            message: `Game Round ${updatedLobby.rounds[lastIndex]} has started! Get ready to test your skills and knowledge. Good luck to all participants!`,
-            lobby: updatedLobby
+            message: Constants.GAME_PLAYED_SUCCESSFULLY,
+            lobby: updatedLobby,
+            lobbyCreator: updatedUser,
         };
     } catch (error) {
-        return 'Internal server error.';
-    }
-};
-
-const status = async (req, res) => {
-    try {
-        const { lobbyId, userId, status } = req.body;
-
-        const lobby = await Lobby.findOne({ _id: lobbyId });
-
-        if (!lobby) {
-            return 'lobby not found.';
-        }
-        if (!status && lobby.playerList.includes(userId)) {
-            lobby.playerList = lobby.playerList.remove(userId);
-            if (lobby.lobbyCreator.toString() === userId) {
-                lobby.lobbyCreator = lobby.playerList[0];
-            }
-            await lobby.save();
-            return lobby;
-        } else {
-            return lobby
-        }
-
-    } catch (error) {
-        return 'Internal server error.';
+        return Constants.INTERNAL_SEVER_ERROR;
     }
 };
 
 
-module.exports = { create, join, play, status };
+module.exports = { createLobby, joinLobby, playLobby };

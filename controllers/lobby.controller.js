@@ -1,39 +1,33 @@
 const { lobbyService } = require('../services');
 
-const create = async (req, res) => {
+// create a lobby
+const createLobby = async (req, res) => {
     try {
-        const data = await lobbyService.create(req);
+        const data = await lobbyService.createLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const join = async (req, res) => {
+// join lobby with lobby code
+const joinLobby = async (req, res) => {
     try {
-        const data = await lobbyService.join(req);
+        const data = await lobbyService.joinLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const play = async (req, res) => {
+// play lobby
+const playLobby = async (req, res) => {
     try {
-        const data = await lobbyService.play(req);
+        const data = await lobbyService.playLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const status = async (req, res) => {
-    try {
-        const data = await lobbyService.status(req);
-        res.send(data);
-    } catch (error) {
-        res.send(error);
-    }
-};
-
-module.exports = { create,join,play,status };
+module.exports = { createLobby, joinLobby, playLobby };

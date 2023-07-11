@@ -1,4 +1,4 @@
-const lobbyService = require('./lobyy.service');
+const lobbyService = require('./lobby.service');
 
 module.exports = {
     lobbyService,

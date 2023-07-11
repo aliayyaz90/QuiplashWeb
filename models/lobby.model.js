@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const lobbySchema = new mongoose.Schema({
-    username: {
-        type: String,
-        minlength: 3,
-    },
     lobbyCode: {
         type: String,
         unique: true,
@@ -16,6 +12,7 @@ const lobbySchema = new mongoose.Schema({
     },
     maxPlayers: {
         type: Number,
+        max: 32,
     },
     lobbyCreator: {
         type: Schema.Types.ObjectId,
@@ -32,12 +29,7 @@ const lobbySchema = new mongoose.Schema({
     lobbyLocked: {
         type: Boolean,
         default: false,
-    },
-    rounds: {
-        type: [Number],
-        enum: [1, 2, 3],
-        default: [1],
-    },
+    }
 });
 
 const Lobby = mongoose.model('lobby', lobbySchema);

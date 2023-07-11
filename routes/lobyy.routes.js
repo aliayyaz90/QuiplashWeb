@@ -3,9 +3,8 @@ const router = express.Router();
 
 const { lobbyController } = require('./../controllers');
 
-router.post('/create', lobbyController.create);
-router.post('/join', lobbyController.join);
-router.post('/play', lobbyController.play);
-router.post('/status', lobbyController.status);
+router.post('/create', lobbyController.createLobby);
+router.post('/join', lobbyController.joinLobby);
+router.post('/play', lobbyController.playLobby);
 
 module.exports = router;
