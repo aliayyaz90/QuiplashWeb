@@ -1,4 +1,4 @@
-const { Lobby, User } = require("../models");
+const { Lobby, User, Question } = require("../models");
 const { lobbyHelper } = require("../helpers");
 const Constants = require('../utils/constants');
 
@@ -109,13 +109,15 @@ const playLobby = async (req, res) => {
 
         // Lock the lobby
         const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
+        // console.log('111111111111111111')
 
         // Return the success response
+        const aaaa = await startRound(updatedLobby);
+        // console.log(aaaa, 'aaaaaaaaaaaaaaaaaaaa');
         return {
             code: 'success',
             message: Constants.GAME_PLAYED_SUCCESSFULLY,
-            lobby: updatedLobby,
-            lobbyCreator: updatedUser,
+            lobby: aaaa,
         };
     } catch (error) {
         return Constants.INTERNAL_SEVER_ERROR;
@@ -123,4 +125,77 @@ const playLobby = async (req, res) => {
 };
 
 
-module.exports = { createLobby, joinLobby, playLobby };
+const statusLobby = async (req, res) => {
+    try {
+        const { lobbyId, userId, status } = req.body;
+
+        const lobby = await Lobby.findOne({ _id: lobbyId });
+
+        if (!lobby) {
+            return Constants.LOBBY_NOT_FOUND;
+        }
+        if (!status && lobby.playerList.includes(userId)) {
+            lobby.playerList = lobby.playerList.remove(userId);
+            if (lobby.lobbyCreator.toString() === userId) {
+                lobby.lobbyCreator = lobby.playerList[0];
+            }
+            await lobby.save();
+            return lobby;
+        } else {
+            return lobby
+        }
+
+    } catch (error) {
+        return 'Internal server error.';
+    }
+};
+
+const updateRound = async (_id, round) => {
+    console.log(_id, round);
+    Lobby.findByIdAndUpdate(
+        _id,
+        { $push: { rounds: { round: round, questions: [] } } },
+        { new: true }
+    )
+        .then(updatedLobby => {
+            if (updatedLobby) {
+                console.log('New round 1 added to the lobby:', updatedLobby);
+            }
+        })
+        .catch(error => {
+            console.log(error)
+        });
+}
+
+const startRound = async (req, res) => {
+    try {
+        const { body } = req;
+        if (body) {
+        } else {
+            const { _id, lobbyCode, lobbyCreator, playerList, lobbyLocked, rounds } = req;
+            if (rounds.length === 0) {
+                const newRound = '1'
+                updateRound(_id.toString(), newRound);
+            }
+            const lobby = await Lobby.findById(_id.toString()).populate('playerList');
+
+            const questions = await Question.aggregate().sample(lobby.playerList.length);
+
+            lobby.playerList.forEach((player, index) => {
+                const randomQuestion = questions[index];
+                lobby.rounds[0].loop1.push({
+                    question: randomQuestion.question,
+                    lobbyUserId: player._id,
+                });
+            });
+
+
+            return lobby;
+        }
+    } catch (error) {
+
+    }
+}
+
+
+module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound };
