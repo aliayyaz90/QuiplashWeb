@@ -50,4 +50,13 @@ const startRound = async (req, res) => {
     }
 };
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound };
+const answerQuestions = async (req, res) => {
+    try {
+        const data = await lobbyService.answerQuestions(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions };

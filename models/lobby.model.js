@@ -15,9 +15,19 @@ const questionSchema = new Schema({
     },
     answer: {
         type: String,
-        default: '',
-    }
-});
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    expiresAt: {
+        type: Date,
+        default: function () {
+            // Set the default expiry time to 90 seconds from the current time
+            return new Date(Date.now() + 90 * 1000);
+        },
+    },
+}, { timestamps: true });
 
 
 const lobbySchema = new mongoose.Schema({

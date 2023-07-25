@@ -198,4 +198,15 @@ const startRound = async (req, res) => {
 }
 
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound };
+const answerQuestions = async (req, res) => {
+    try {
+        const { body } = req;
+        console.log(body, 'body')
+    } catch (error) {
+
+    }
+}
+
+
+
+module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions };
