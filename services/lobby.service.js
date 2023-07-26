@@ -104,20 +104,24 @@ const playLobby = async (req, res) => {
             return Constants.MINIMUM_PLAYERS_REQUIRED;
         }
 
-        // Update the user's canPlayGame property to true
-        const updatedUser = await User.findByIdAndUpdate(id, { canPlayGame: true }, { new: true });
+        await User.findByIdAndUpdate(id, { canPlayGame: true }, { new: true });
 
         // Lock the lobby
         const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
         // console.log('111111111111111111')
 
         // Return the success response
-        const aaaa = await startRound(updatedLobby);
-        // console.log(aaaa, 'aaaaaaaaaaaaaaaaaaaa');
+        const data = await startRound(updatedLobby);
+
+        console.log(data, 'data')
+
+        lobby.save();
+
+        const updateData = await Lobby.findByIdAndUpdate(lobby._id, data, { new: true }).populate(['lobbyCreator', 'playerList']);
         return {
             code: 'success',
             message: Constants.GAME_PLAYED_SUCCESSFULLY,
-            lobby: aaaa,
+            lobby: updateData,
         };
     } catch (error) {
         return Constants.INTERNAL_SEVER_ERROR;
@@ -200,10 +204,54 @@ const startRound = async (req, res) => {
 
 const answerQuestions = async (req, res) => {
     try {
-        const { body } = req;
-        console.log(body, 'body')
-    } catch (error) {
+        const { lobbyId, userId, round, loop, question, answer } = req.body;
 
+        const lobby = await Lobby.findById(lobbyId).populate('playerList');
+
+        if (lobby) {
+
+        } else {
+            return 'User or lobby not found.';
+        }
+
+
+
+
+        const loop1Array = lobby.rounds[0].loop1;
+        for (const item of loop1Array) {
+            console.log(item.lobbyUserId, 'item.lobbyUserId')
+            if (item.lobbyUserId.toString() === userId) {
+                const currentTime = Date.now();
+                const timeDifference = currentTime - item.expiresAt;
+                const timeLimit = 90000;
+
+                // if (timeDifference > timeLimit) {
+                //     return 'answer time(90S) has expired.';
+                // } else {
+                    item.answer = answer;
+                    break;
+                // }
+
+            }
+        }
+
+        await lobby.save();
+        return lobby;
+
+
+        const currentTime = Date.now();
+        const timeDifference = currentTime - storedAnswer.timestamp;
+        const timeLimit = 90000; // 15 seconds in milliseconds
+
+        if (timeDifference > timeLimit) {
+            return res.json({ message: 'Loop1 answer has expired.' });
+        }
+
+        res.json({ message: 'Loop1 answer is valid.' });
+
+
+    } catch (error) {
+        console.log(error, 'error')
     }
 }
 
