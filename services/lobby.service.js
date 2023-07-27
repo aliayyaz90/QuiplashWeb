@@ -82,7 +82,7 @@ const joinLobby = async (req, res) => {
     }
 };
 
-// play lobby
+
 const playLobby = async (req, res) => {
     try {
         const { id } = req.body;
@@ -104,102 +104,108 @@ const playLobby = async (req, res) => {
             return Constants.MINIMUM_PLAYERS_REQUIRED;
         }
 
+        // Update the user's canPlayGame status
         await User.findByIdAndUpdate(id, { canPlayGame: true }, { new: true });
 
-        // Lock the lobby
-        const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, { lobbyLocked: true }, { new: true });
-        // console.log('111111111111111111')
+        // Lock the lobby and start the round
+        const updatedLobby = await Lobby.findByIdAndUpdate(
+            lobby._id.toString(),
+            { lobbyLocked: true },
+            { new: true }
+        );
 
-        // Return the success response
-        const data = await startRound(updatedLobby);
-
-        console.log(data, 'data')
-
-        lobby.save();
-
-        const updateData = await Lobby.findByIdAndUpdate(lobby._id, data, { new: true }).populate(['lobbyCreator', 'playerList']);
+        // Start the round and get the updated lobby data
+        const result = await startRound(updatedLobby);
         return {
             code: 'success',
             message: Constants.GAME_PLAYED_SUCCESSFULLY,
-            lobby: updateData,
+            lobby: result,
         };
     } catch (error) {
+        console.log(error);
         return Constants.INTERNAL_SEVER_ERROR;
     }
 };
 
 
+
 const statusLobby = async (req, res) => {
     try {
         const { lobbyId, userId, status } = req.body;
-
         const lobby = await Lobby.findOne({ _id: lobbyId });
 
         if (!lobby) {
-            return Constants.LOBBY_NOT_FOUND;
+            return 'Lobby not found.';
         }
+
         if (!status && lobby.playerList.includes(userId)) {
-            lobby.playerList = lobby.playerList.remove(userId);
+            // Remove userId from the playerList using array filtering
+            lobby.playerList = lobby.playerList.filter((player) => player !== userId);
+
             if (lobby.lobbyCreator.toString() === userId) {
                 lobby.lobbyCreator = lobby.playerList[0];
             }
+
             await lobby.save();
-            return lobby;
-        } else {
-            return lobby
         }
 
+        return lobby;
+
     } catch (error) {
+        console.log(error, 'error')
         return 'Internal server error.';
     }
 };
 
+
 const updateRound = async (_id, round) => {
-    console.log(_id, round);
-    Lobby.findByIdAndUpdate(
+    const result = await Lobby.findByIdAndUpdate(
         _id,
         { $push: { rounds: { round: round, questions: [] } } },
         { new: true }
     )
-        .then(updatedLobby => {
-            if (updatedLobby) {
-                console.log('New round 1 added to the lobby:', updatedLobby);
-            }
-        })
-        .catch(error => {
-            console.log(error)
-        });
+    return result
 }
+
 
 const startRound = async (req, res) => {
     try {
         const { body } = req;
         if (body) {
         } else {
-            const { _id, lobbyCode, lobbyCreator, playerList, lobbyLocked, rounds } = req;
-            if (rounds.length === 0) {
-                const newRound = '1'
-                updateRound(_id.toString(), newRound);
-            }
-            const lobby = await Lobby.findById(_id.toString()).populate('playerList');
+            const { _id, rounds } = req;
 
+            if (rounds.length === 0) {
+                const newRound = '1';
+                const aaaa = await updateRound(_id.toString(), newRound);
+                console.log(aaaa, 'aaaa aaaa aaaa')
+            }
+
+            // Fetch the lobby with populated playerList
+            const lobby = await Lobby.findById(_id);
+            console.log(lobby, 'lobby lobby lobby lobby lobby')
+
+            // Fetch random questions equal to the number of players in the lobby
             const questions = await Question.aggregate().sample(lobby.playerList.length);
 
-            lobby.playerList.forEach((player, index) => {
-                const randomQuestion = questions[index];
-                lobby.rounds[0].loop1.push({
-                    question: randomQuestion.question,
-                    lobbyUserId: player._id,
-                });
-            });
+            // Generate the loop1 array using map and random questions
+            const loop1Array = lobby.playerList.map((player, index) => ({
+                question: questions[index].question,
+                lobbyUserId: player._id,
+            }));
 
+            lobby.rounds[0].loop1 = loop1Array;
+            lobby.save();
 
             return lobby;
         }
-    } catch (error) {
 
+    } catch (error) {
+        console.log(error);
+        return 'Internal server error.';
     }
-}
+};
+
 
 
 const answerQuestions = async (req, res) => {
@@ -208,52 +214,43 @@ const answerQuestions = async (req, res) => {
 
         const lobby = await Lobby.findById(lobbyId).populate('playerList');
 
-        if (lobby) {
-
-        } else {
+        if (!lobby) {
             return 'User or lobby not found.';
         }
 
-
-
-
         const loop1Array = lobby.rounds[0].loop1;
+        let userFound = false;
+
         for (const item of loop1Array) {
-            console.log(item.lobbyUserId, 'item.lobbyUserId')
             if (item.lobbyUserId.toString() === userId) {
                 const currentTime = Date.now();
                 const timeDifference = currentTime - item.expiresAt;
                 const timeLimit = 90000;
 
-                // if (timeDifference > timeLimit) {
-                //     return 'answer time(90S) has expired.';
-                // } else {
+                if (timeDifference > timeLimit) {
+                    return 'Answer time(90S) has expired.';
+                } else {
                     item.answer = answer;
+                    userFound = true;
                     break;
-                // }
-
+                }
             }
         }
 
-        await lobby.save();
-        return lobby;
-
-
-        const currentTime = Date.now();
-        const timeDifference = currentTime - storedAnswer.timestamp;
-        const timeLimit = 90000; // 15 seconds in milliseconds
-
-        if (timeDifference > timeLimit) {
-            return res.json({ message: 'Loop1 answer has expired.' });
+        if (!userFound) {
+            return 'User not found in the lobby.';
         }
 
-        res.json({ message: 'Loop1 answer is valid.' });
-
-
+        const result = await lobby.save();
+        return {
+            code: 'success',
+            message: 'Answer saved successfully.',
+            lobby: result,
+        };
     } catch (error) {
-        console.log(error, 'error')
+        return 'Internal server error.';
     }
-}
+};
 
 
 

@@ -61,8 +61,14 @@ const lobbySchema = new mongoose.Schema({
             enum: roundTypes,
             default: '1',
         },
-        loop1: [questionSchema],
-        loop2: [questionSchema],
+        loop1: {
+            type: [questionSchema],
+            default: [],
+        },
+        loop2: {
+            type: [questionSchema],
+            default: [],
+        },
     }],
 });
 

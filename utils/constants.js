@@ -10,4 +10,5 @@ module.exports = {
     LOBBY_NOT_FOUND: "Lobby not found.",
     QUESTION_ADDED_SUCCESSFULLY: "Question added successfully",
     QUESTION_GET_SUCCESSFULLY: "Question gets successfully",
+    INTERNAL_SERVER_ERROR: "Internal server error"
   };
