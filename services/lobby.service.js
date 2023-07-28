@@ -172,13 +172,32 @@ const startRound = async (req, res) => {
     try {
         const { body } = req;
         if (body) {
+            console.log(body, 'body');
+            let findLobby = await Lobby.findOne({ lobbyCode: body.lobbyCode });
+            if (body.round === '1') {
+                if (findLobby?.rounds[0]?.loop1?.length > 0) {
+
+                } else {
+                    return 'Lobby match not start yet.'
+                }
+            } else if (body.round === '2') {
+                if (findLobby?.rounds[1]?.loop1?.length > 0) {
+
+                } else {
+                    return 'Lobby match not start yet.'
+                }
+            }
+            return findLobby;
         } else {
             const { _id, rounds } = req;
-
             if (rounds.length === 0) {
                 const newRound = '1';
-                const aaaa = await updateRound(_id.toString(), newRound);
-                console.log(aaaa, 'aaaa aaaa aaaa')
+                await updateRound(_id.toString(), newRound);
+            } else if (rounds[0].loop1.length > 0) {
+                const n = 2;
+                getRandomNthQuestion(n, rounds[0].loop1);
+
+                return 'ssssssssssssssssssssss'
             }
 
             // Fetch the lobby with populated playerList
@@ -187,12 +206,24 @@ const startRound = async (req, res) => {
 
             // Fetch random questions equal to the number of players in the lobby
             const questions = await Question.aggregate().sample(lobby.playerList.length);
-
+            console.log(questions, 'questions questions questions')
             // Generate the loop1 array using map and random questions
-            const loop1Array = lobby.playerList.map((player, index) => ({
-                question: questions[index].question,
-                lobbyUserId: player._id,
-            }));
+
+            const loop1Array = lobby.playerList.map((player, index) => {
+                if (index < questions.length) {
+                    // If the index is within the bounds of 'questions', use the question at the corresponding index
+                    return {
+                        question: questions[index].question,
+                        lobbyUserId: player._id,
+                    };
+                } else {
+                    // If 'questions' does not have enough elements, provide a default question or handle it as needed
+                    return {
+                        question: 'Default question',
+                        lobbyUserId: player._id,
+                    };
+                }
+            });
 
             lobby.rounds[0].loop1 = loop1Array;
             lobby.save();
@@ -205,6 +236,17 @@ const startRound = async (req, res) => {
         return 'Internal server error.';
     }
 };
+
+function getRandomNthQuestion(n, loop) {
+    if (n <= 0 || n > loop.length) {
+        console.log("Invalid value of n.");
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * loop.length);
+    const nthQuestion = loop[randomIndex].question;
+    console.log("The random nth question is:", nthQuestion);
+}
 
 
 
