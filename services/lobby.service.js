@@ -174,8 +174,36 @@ const startRound = async (req, res) => {
         if (body) {
             console.log(body, 'body');
             let findLobby = await Lobby.findOne({ lobbyCode: body.lobbyCode });
-            if (body.round === '1') {
+            console.log('11111111111111111111');
+            if (body.round === '0') {
+                return 'Lobby match not start yet.'
+            }
+            else if (body.round === '1') {
                 if (findLobby?.rounds[0]?.loop1?.length > 0) {
+
+                    console.log('222222222222222222');
+
+                    const questions = findLobby?.rounds[0]?.loop1;
+                    const users = findLobby.playerList;
+
+                    const loop2 = [];
+
+                    for (let outer = 0; outer < questions.length; outer++) {
+                        const round = [];
+
+                        for (let inner = 0; inner < users.length; inner++) {
+                            const targetQuestion = questions[(inner + outer) % questions.length];
+                            round.push({ lobbyUserId: users[inner], question: targetQuestion.question });
+
+                        }
+                        loop2.push(round);
+                    }
+
+                    findLobby.rounds[0].loop2 = loop2[1];
+
+                    findLobby.save();
+
+                    return findLobby;
 
                 } else {
                     return 'Lobby match not start yet.'
@@ -260,16 +288,25 @@ const answerQuestions = async (req, res) => {
             return 'User or lobby not found.';
         }
 
-        const loop1Array = lobby.rounds[0].loop1;
+        let loopsArray;
         let userFound = false;
 
-        for (const item of loop1Array) {
+        if (round === '1' && loop === '1') {
+            loopsArray = lobby.rounds[0].loop1;
+        } else if (round === '1' && loop === '2') {
+            loopsArray = lobby.rounds[0].loop2;
+        }
+
+
+        for (const item of loopsArray) {
             if (item.lobbyUserId.toString() === userId) {
                 const currentTime = Date.now();
                 const timeDifference = currentTime - item.expiresAt;
                 const timeLimit = 90000;
 
                 if (timeDifference > timeLimit) {
+                    item.answer = "time-out";
+                    lobby.save();
                     return 'Answer time(90S) has expired.';
                 } else {
                     item.answer = answer;
@@ -294,6 +331,76 @@ const answerQuestions = async (req, res) => {
     }
 };
 
+const commonQuestion = async (req, res) => {
+    const { lobbyId } = req.body;
+    let findLobby = await Lobby.findOne({ _id: lobbyId });
+    if (findLobby) {
+        let response = [];
+        findLobby.rounds.forEach(iteration1 => {
+            iteration1.loop1.forEach(iteration2 => {
+                iteration1.loop2.forEach(iteration3 => {
+                    if (iteration2.question === iteration3.question) {
+                        const obj = {
+                            question: iteration3.question,
+                            answerBy: [
+                                {
+                                    question: iteration3.question,
+                                    lobbyUserId: iteration2.lobbyUserId,
+                                },
+                                {
+                                    question: iteration3.question,
+                                    lobbyUserId: iteration3.lobbyUserId,
+                                }
+                            ],
+                        }
+                        response.push(obj);
+                    }
+                });
+            });
+
+        });
+
+        findLobby.rounds[0].commonQuestions = response;
+        findLobby.save();
 
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions };
+        return {
+            code: 'success',
+            response: findLobby,
+        };
+
+    } else {
+        return "Lobby not found";
+    }
+};
+
+const votingQuestions = async (req, res) => {
+    const { round, lobbyId, lobbyUserId, answer, questionId } = req.body;
+    console.log(round, lobbyId, lobbyUserId, answer, questionId, 'round, lobbyId, lobbyUserId, answer')
+    if (round === "1") {
+        let findLobby = await Lobby.findOne({ _id: lobbyId });
+        const votedBy = [];
+        findLobby.rounds.forEach(iteration1 => {
+            iteration1.commonQuestions.forEach(iteration2 => {
+                iteration2.answerBy.forEach(iteration3 => {
+                    if (iteration3._id.toString() === questionId) {
+                        console.log(iteration3, 'iteration3')
+                        votedBy.push(lobbyUserId);
+                        console.log(iteration3, 'iteration3')
+                    }
+                });
+                // console.log(iteration2, 'iteration2')
+                // if (iteration2.votedBy.length > 0) votedBy = iteration2.votedBy;
+                // iteration2.votedBy = [...votedBy];
+                // console.log(iteration2, 'iteration2')
+            });
+        });
+        console.log(votedBy, 'votedBy votedBy')
+        findLobby.save();
+        return findLobby;
+    } else { }
+}
+
+
+
+module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions, commonQuestion, votingQuestions };

@@ -30,6 +30,15 @@ const questionSchema = new Schema({
 }, { timestamps: true });
 
 
+const commonQuestionSchema = new mongoose.Schema({
+    question: {
+        type: String,
+    },
+    lobbyUserId: {
+        type: Schema.Types.ObjectId,
+    },
+});
+
 const lobbySchema = new mongoose.Schema({
     lobbyCode: {
         type: String,
@@ -69,6 +78,24 @@ const lobbySchema = new mongoose.Schema({
             type: [questionSchema],
             default: [],
         },
+        commonQuestions: [
+            {
+                question: {
+                    type: String,
+                    default: '',
+                },
+                votedBy: [
+                    {
+                        type: Schema.Types.ObjectId,
+                        default: []
+                    }
+                ],
+                answerBy: {
+                    type: [commonQuestionSchema],
+                    default: [],
+                },
+            }
+        ]
     }],
 });
 

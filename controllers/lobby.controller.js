@@ -59,4 +59,23 @@ const answerQuestions = async (req, res) => {
     }
 };
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions };
+
+const commonQuestion = async (req, res) => {
+    try {
+        const data = await lobbyService.commonQuestion(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const votingQuestions = async (req, res) => {
+    try {
+        const data = await lobbyService.votingQuestions(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions, commonQuestion,votingQuestions };

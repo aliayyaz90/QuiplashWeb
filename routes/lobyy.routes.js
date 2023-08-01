@@ -9,5 +9,7 @@ router.post('/play', lobbyController.playLobby);
 router.post('/status', lobbyController.statusLobby);
 router.post('/startRound', lobbyController.startRound);
 router.post('/answer-the-questions', lobbyController.answerQuestions);
+router.post('/commonQuestion', lobbyController.commonQuestion);
+router.post('/votingQuestions', lobbyController.votingQuestions);
 
 module.exports = router;
