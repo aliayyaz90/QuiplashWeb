@@ -34,9 +34,18 @@ const commonQuestionSchema = new mongoose.Schema({
     question: {
         type: String,
     },
+    answer: {
+        type: String,
+    },
     lobbyUserId: {
         type: Schema.Types.ObjectId,
     },
+    votedBy: [
+        {
+            type: Schema.Types.ObjectId,
+            default: []
+        }
+    ],
 });
 
 const lobbySchema = new mongoose.Schema({
@@ -84,12 +93,6 @@ const lobbySchema = new mongoose.Schema({
                     type: String,
                     default: '',
                 },
-                votedBy: [
-                    {
-                        type: Schema.Types.ObjectId,
-                        default: []
-                    }
-                ],
                 answerBy: {
                     type: [commonQuestionSchema],
                     default: [],
