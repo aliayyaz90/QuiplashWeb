@@ -11,7 +11,6 @@ router.post('/startRound', lobbyController.startRound);
 router.post('/answer-the-questions', lobbyController.answerQuestions);
 router.post('/commonQuestion', lobbyController.commonQuestion);
 router.post('/votingQuestions', lobbyController.votingQuestions);
-router.post('/roundWinnder', lobbyController.roundWinnder);
-
+router.post('/roundWinnder', lobbyController.roundWinner);
 
 module.exports = router;

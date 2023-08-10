@@ -78,13 +78,23 @@ const votingQuestions = async (req, res) => {
     }
 };
 
-const roundWinnder = async (req, res) => {
+const roundWinner = async (req, res) => {
     try {
-        const data = await lobbyService.roundWinnder(req);
+        const data = await lobbyService.roundWinner(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions, commonQuestion,votingQuestions, roundWinnder };
+module.exports = {
+    createLobby,
+    joinLobby,
+    playLobby,
+    statusLobby,
+    startRound,
+    answerQuestions,
+    commonQuestion,
+    votingQuestions,
+    roundWinner
+};

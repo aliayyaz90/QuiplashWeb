@@ -23,7 +23,7 @@ const addQuestion = async (req, res) => {
     try {
         const {body} = req;
         const question = await Question.create(body);
-        console.log(question,'2222222222')
+        // console.log(question,'2222222222')
         if (question) {
             return {
                 code: 'success',

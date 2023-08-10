@@ -6,9 +6,9 @@ const questionSchema = new Schema({
         type: String,
         required: true,
     },
-    answer: {
-        type: String,
-    }
+    // answer: {
+    //     type: String,
+    // }
 });
 
 const Question = mongoose.model('Questions', questionSchema);

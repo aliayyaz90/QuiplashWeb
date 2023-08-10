@@ -47,7 +47,7 @@ const createLobby = async (req, res) => {
 // join lobby with lobby code
 const joinLobby = async (req, res) => {
     try {
-        const { lobbyCode } = req.body;
+        const { lobbyCode, playerName } = req.body;
 
         // Find the lobby with the given lobbyCode
         let findLobby = await Lobby.findOne({ lobbyCode: lobbyCode });
@@ -60,10 +60,10 @@ const joinLobby = async (req, res) => {
             }
 
             // Generate a random name for the user
-            const randomName = await lobbyHelper.generateRandomName();
+            // const randomName = await lobbyHelper.generateRandomName();
 
             // Create a new user with the random name
-            const user = await User.create({ name: randomName });
+            const user = await User.create({ name: playerName });
 
             // Add the new user to the playerList array in the lobby
             const newUserList = [...findLobby.playerList, user._id];
@@ -651,7 +651,7 @@ const votingQuestions = async (req, res) => {
     return findLobby;
 }
 
-const roundWinnder = async (req, res) => {
+const roundWinner = async (req, res) => {
     const { round, lobbyId } = req.body;
     const round_1_points = 1;
     const round_2_points = 2;
@@ -685,4 +685,14 @@ const roundWinnder = async (req, res) => {
 }
 
 
-module.exports = { createLobby, joinLobby, playLobby, statusLobby, startRound, answerQuestions, commonQuestion, votingQuestions, roundWinnder };
+module.exports = {
+    createLobby,
+    joinLobby,
+    playLobby,
+    statusLobby,
+    startRound,
+    answerQuestions,
+    commonQuestion,
+    votingQuestions,
+    roundWinner
+};
