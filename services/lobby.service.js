@@ -664,23 +664,325 @@ const roundWinner = async (req, res) => {
                 winnerArray.push({ lobbyUserId: iteration2.lobbyUserId, question: iteration2.question, questionId: iteration2._id, voted: iteration2.votedBy.length });
             });
         });
-        return winnerArray;
+        const rewardCalculation = [];
+        const questionInfo = {};
+        let finalWinnerCalculation = [];
+        winnerArray.forEach(element => {
+            const question = element.question;
+            const lobbyUserId = element.lobbyUserId;
+
+            if (!questionInfo[question]) {
+                questionInfo[question] = {
+                    count: 1,
+                    lobbyUserIds: new Set([lobbyUserId])
+                };
+            } else {
+                questionInfo[question].count++;
+                questionInfo[question].lobbyUserIds.add(lobbyUserId);
+            }
+        });
+
+        for (const question in questionInfo) {
+            let object = {};
+            const userSet = questionInfo[question].lobbyUserIds;
+            object.question = question
+            object.hasUser = [
+                {
+                    lobbyUserId: Array.from(userSet)[0],
+                },
+                {
+                    lobbyUserId: Array.from(userSet)[1],
+                }
+            ]
+            rewardCalculation.push(object);
+        }
+
+
+        rewardCalculation.forEach(element1 => {
+            element1.hasUser.forEach(element2 => {
+                winnerArray.forEach(element3 => {
+                    if (element1.question === element3.question && element2.lobbyUserId.toString() === element3.lobbyUserId.toString()) {
+                        element2.voted = element3.voted;
+                        if (element2.toString() === element3.lobbyUserId.toString()) finalWinnerCalculation.push(element1);
+                    }
+                });
+            });
+        });
+
+        const voteTotals = {};
+
+        for (const question of rewardCalculation) {
+            for (const user of question.hasUser) {
+                const lobbyUserId = user.lobbyUserId;
+                const voted = user.voted;
+
+                if (lobbyUserId in voteTotals) {
+                    voteTotals[lobbyUserId] += voted * round_1_points;
+                } else {
+                    voteTotals[lobbyUserId] = voted * round_1_points;
+                }
+            }
+        }
+
+        let highestVotes = 0;
+        let highestUserIds = [];
+
+        for (const lobbyUserId in voteTotals) {
+            if (voteTotals[lobbyUserId] > highestVotes) {
+                highestVotes = voteTotals[lobbyUserId];
+                highestUserIds = [lobbyUserId];
+            } else if (voteTotals[lobbyUserId] === highestVotes) {
+                highestUserIds.push(lobbyUserId);
+            }
+        }
+
+        const result = {
+            rewardCalculation,
+            tieBetweenUser: highestUserIds,
+            winner: highestUserIds[0],
+            score: highestVotes,
+        };
+
+        if (findLobby.rounds[0].rewardCalculations.length > 0) return 'mafi nai mil skti';
+        else findLobby.rounds[0].rewardCalculations = result;
+
+        findLobby.save();
+
+        return findLobby;
+        // consition change
     } else if (round === '2') {
         findLobby.rounds[1].commonQuestions.forEach(iteration1 => {
             iteration1.answerBy.forEach(iteration2 => {
                 winnerArray.push({ lobbyUserId: iteration2.lobbyUserId, question: iteration2.question, questionId: iteration2._id, voted: iteration2.votedBy.length });
             });
         });
-        return winnerArray;
+        const rewardCalculation = [];
+        const questionInfo = {};
+        let finalWinnerCalculation = [];
+        winnerArray.forEach(element => {
+            const question = element.question;
+            const lobbyUserId = element.lobbyUserId;
+
+            if (!questionInfo[question]) {
+                questionInfo[question] = {
+                    count: 1,
+                    lobbyUserIds: new Set([lobbyUserId])
+                };
+            } else {
+                questionInfo[question].count++;
+                questionInfo[question].lobbyUserIds.add(lobbyUserId);
+            }
+        });
+
+        for (const question in questionInfo) {
+            let object = {};
+            const userSet = questionInfo[question].lobbyUserIds;
+            object.question = question
+            object.hasUser = [
+                {
+                    lobbyUserId: Array.from(userSet)[0],
+                },
+                {
+                    lobbyUserId: Array.from(userSet)[1],
+                }
+            ]
+            rewardCalculation.push(object);
+        }
+
+
+        rewardCalculation.forEach(element1 => {
+            element1.hasUser.forEach(element2 => {
+                winnerArray.forEach(element3 => {
+                    if (element1.question === element3.question && element2.lobbyUserId.toString() === element3.lobbyUserId.toString()) {
+                        element2.voted = element3.voted;
+                        if (element2.toString() === element3.lobbyUserId.toString()) finalWinnerCalculation.push(element1);
+                    }
+                });
+            });
+        });
+
+        const voteTotals = {};
+
+        for (const question of rewardCalculation) {
+            for (const user of question.hasUser) {
+                const lobbyUserId = user.lobbyUserId;
+                const voted = user.voted;
+
+                if (lobbyUserId in voteTotals) {
+                    voteTotals[lobbyUserId] += voted * round_2_points;
+                } else {
+                    voteTotals[lobbyUserId] = voted * round_2_points;
+                }
+            }
+        }
+
+        let highestVotes = 0;
+        let highestUserIds = [];
+
+        for (const lobbyUserId in voteTotals) {
+            if (voteTotals[lobbyUserId] > highestVotes) {
+                highestVotes = voteTotals[lobbyUserId];
+                highestUserIds = [lobbyUserId];
+            } else if (voteTotals[lobbyUserId] === highestVotes) {
+                highestUserIds.push(lobbyUserId);
+            }
+        }
+
+        const result = {
+            rewardCalculation,
+            tieBetweenUser: highestUserIds,
+            winner: highestUserIds[0],
+            score: highestVotes,
+        };
+
+        if (findLobby.rounds[1].rewardCalculations.length > 0) return 'mafi nai mil skti';
+        else findLobby.rounds[1].rewardCalculations = result;
+
+        findLobby.save();
+
+        return findLobby;
     } else if (round === '3') {
         findLobby.rounds[2].commonQuestions.forEach(iteration1 => {
             iteration1.answerBy.forEach(iteration2 => {
                 winnerArray.push({ lobbyUserId: iteration2.lobbyUserId, question: iteration2.question, questionId: iteration2._id, voted: iteration2.votedBy.length });
             });
         });
-        return winnerArray;
+        const rewardCalculation = [];
+        const questionInfo = {};
+        let finalWinnerCalculation = [];
+        winnerArray.forEach(element => {
+            const question = element.question;
+            const lobbyUserId = element.lobbyUserId;
+
+            if (!questionInfo[question]) {
+                questionInfo[question] = {
+                    count: 1,
+                    lobbyUserIds: new Set([lobbyUserId])
+                };
+            } else {
+                questionInfo[question].count++;
+                questionInfo[question].lobbyUserIds.add(lobbyUserId);
+            }
+        });
+
+        for (const question in questionInfo) {
+            let object = {};
+            const userSet = questionInfo[question].lobbyUserIds;
+            object.question = question
+            object.hasUser = [
+                {
+                    lobbyUserId: Array.from(userSet)[0],
+                },
+                {
+                    lobbyUserId: Array.from(userSet)[1],
+                }
+            ]
+            rewardCalculation.push(object);
+        }
+
+
+        rewardCalculation.forEach(element1 => {
+            element1.hasUser.forEach(element2 => {
+                winnerArray.forEach(element3 => {
+                    if (element1.question === element3.question && element2.lobbyUserId.toString() === element3.lobbyUserId.toString()) {
+                        element2.voted = element3.voted;
+                        if (element2.toString() === element3.lobbyUserId.toString()) finalWinnerCalculation.push(element1);
+                    }
+                });
+            });
+        });
+
+        const voteTotals = {};
+
+        for (const question of rewardCalculation) {
+            for (const user of question.hasUser) {
+                const lobbyUserId = user.lobbyUserId;
+                const voted = user.voted;
+
+                if (lobbyUserId in voteTotals) {
+                    voteTotals[lobbyUserId] += voted * round_3_points;
+                } else {
+                    voteTotals[lobbyUserId] = voted * round_3_points;
+                }
+            }
+        }
+
+        let highestVotes = 0;
+        let highestUserIds = [];
+
+        for (const lobbyUserId in voteTotals) {
+            if (voteTotals[lobbyUserId] > highestVotes) {
+                highestVotes = voteTotals[lobbyUserId];
+                highestUserIds = [lobbyUserId];
+            } else if (voteTotals[lobbyUserId] === highestVotes) {
+                highestUserIds.push(lobbyUserId);
+            }
+        }
+
+        const result = {
+            rewardCalculation,
+            tieBetweenUser: highestUserIds,
+            winner: highestUserIds[0],
+            score: highestVotes,
+        };
+
+        if (findLobby.rounds[2].rewardCalculations.length > 0) return 'mafi nai mil skti';
+        else findLobby.rounds[2].rewardCalculations = result;
+
+        findLobby.save();
+
+        return findLobby;
     } else {
         return "sorry"
+    }
+}
+
+const lobbyWinner = async (req, res) => {
+    const { lobbyId } = req.body;
+    const lobby = await Lobby.findOne({ _id: lobbyId });
+    let largestScore = -Infinity;
+    let objectWithLargestScore = null;
+    lobby.rounds.forEach(element => {
+        for (const object of element.rewardCalculations) {
+            if (object.score > largestScore) {
+                largestScore = object.score;
+                objectWithLargestScore = object;
+            }
+        }
+    });
+
+    console.log(objectWithLargestScore, 'objectWithLargestScore');
+
+    lobby.lobbyWinner = {
+        lobbyUserId: objectWithLargestScore.winner,
+        score: objectWithLargestScore.score,
+    }
+
+    lobby.save();
+    return lobby;
+}
+
+const getLobbies = async (req, res) => {
+    const lobbies = await Lobby.find();
+    if(lobbies){
+        return lobbies;
+    }else{
+        return 'some thing went wrong'
+    }
+}
+
+const getWaitingLobbies = async (req, res) => {
+    const lobbies = await Lobby.find();
+    if(lobbies){
+        let newArray = [];
+        lobbies.forEach(element => {
+            if(element.lobbyLocked === false){
+                newArray.push(element.lobbyCode);
+            }
+        });
+        return newArray;
+    }else{
+        return 'some thing went wrong'
     }
 }
 
@@ -694,5 +996,8 @@ module.exports = {
     answerQuestions,
     commonQuestion,
     votingQuestions,
-    roundWinner
+    roundWinner,
+    lobbyWinner,
+    getLobbies,
+    getWaitingLobbies,
 };

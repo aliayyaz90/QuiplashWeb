@@ -98,8 +98,44 @@ const lobbySchema = new mongoose.Schema({
                     default: [],
                 },
             }
-        ]
+        ],
+        rewardCalculations: [
+            {
+                question: {
+                    type: String,
+                },
+                hasUser: [
+                    {
+                        lobbyUserId: {
+                            type: Schema.Types.ObjectId,
+                        },
+                        gotVote: {
+                            type: Number
+                        }
+                    }
+                ],
+                tieBetweenUser: [
+                    {
+                        type: Schema.Types.ObjectId,
+                    }
+                ],
+                winner: {
+                    type: Schema.Types.ObjectId,
+                },
+                score: {
+                    type: Number
+                }
+            }
+        ] 
     }],
+    lobbyWinner: {
+        lobbyUserId: {
+            type: Schema.Types.ObjectId,
+        },
+        score: {
+            type: Number
+        }
+    }
 });
 
 const Lobby = mongoose.model('lobby', lobbySchema);

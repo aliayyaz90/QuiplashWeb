@@ -87,6 +87,33 @@ const roundWinner = async (req, res) => {
     }
 };
 
+const lobbyWinner = async (req, res) => {
+    try {
+        const data = await lobbyService.lobbyWinner(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const getLobbies= async (req, res) => {
+    try {
+        const data = await lobbyService.getLobbies(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const getWaitingLobbies= async (req, res) => {
+    try {
+        const data = await lobbyService.getWaitingLobbies(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
 module.exports = {
     createLobby,
     joinLobby,
@@ -96,5 +123,8 @@ module.exports = {
     answerQuestions,
     commonQuestion,
     votingQuestions,
-    roundWinner
+    roundWinner,
+    lobbyWinner,
+    getLobbies,
+    getWaitingLobbies,
 };
