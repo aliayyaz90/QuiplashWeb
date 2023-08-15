@@ -1,11 +1,54 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const lobbySchema = new mongoose.Schema({
-    username: {
+const roundTypes = ['1', '2', '3'];
+
+const questionSchema = new Schema({
+    question: {
         type: String,
-        minlength: 3,
+        required: true,
     },
+    lobbyUserId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    answer: {
+        type: String,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    expiresAt: {
+        type: Date,
+        default: function () {
+            // Set the default expiry time to 90 seconds from the current time
+            return new Date(Date.now() + 90 * 1000);
+        },
+    },
+}, { timestamps: true });
+
+
+const commonQuestionSchema = new mongoose.Schema({
+    question: {
+        type: String,
+    },
+    answer: {
+        type: String,
+    },
+    lobbyUserId: {
+        type: Schema.Types.ObjectId,
+    },
+    votedBy: [
+        {
+            type: Schema.Types.ObjectId,
+            default: []
+        }
+    ],
+});
+
+const lobbySchema = new mongoose.Schema({
     lobbyCode: {
         type: String,
         unique: true,
@@ -16,6 +59,7 @@ const lobbySchema = new mongoose.Schema({
     },
     maxPlayers: {
         type: Number,
+        max: 32,
     },
     lobbyCreator: {
         type: Schema.Types.ObjectId,
@@ -25,19 +69,73 @@ const lobbySchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
     }],
-    round: {
-        type: Schema.Types.ObjectId,
-        ref: 'Round',
-    },
     lobbyLocked: {
         type: Boolean,
         default: false,
     },
-    rounds: {
-        type: [Number],
-        enum: [1, 2, 3],
-        default: [1],
-    },
+    rounds: [{
+        round: {
+            type: String,
+            enum: roundTypes,
+            default: '1',
+        },
+        loop1: {
+            type: [questionSchema],
+            default: [],
+        },
+        loop2: {
+            type: [questionSchema],
+            default: [],
+        },
+        commonQuestions: [
+            {
+                question: {
+                    type: String,
+                    default: '',
+                },
+                answerBy: {
+                    type: [commonQuestionSchema],
+                    default: [],
+                },
+            }
+        ],
+        rewardCalculations: [
+            {
+                question: {
+                    type: String,
+                },
+                hasUser: [
+                    {
+                        lobbyUserId: {
+                            type: Schema.Types.ObjectId,
+                        },
+                        gotVote: {
+                            type: Number
+                        }
+                    }
+                ],
+                tieBetweenUser: [
+                    {
+                        type: Schema.Types.ObjectId,
+                    }
+                ],
+                winner: {
+                    type: Schema.Types.ObjectId,
+                },
+                score: {
+                    type: Number
+                }
+            }
+        ] 
+    }],
+    lobbyWinner: {
+        lobbyUserId: {
+            type: Schema.Types.ObjectId,
+        },
+        score: {
+            type: Number
+        }
+    }
 });
 
 const Lobby = mongoose.model('lobby', lobbySchema);

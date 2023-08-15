@@ -1,39 +1,130 @@
 const { lobbyService } = require('../services');
 
-const create = async (req, res) => {
+// create a lobby
+const createLobby = async (req, res) => {
     try {
-        const data = await lobbyService.create(req);
+        const data = await lobbyService.createLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const join = async (req, res) => {
+// join lobby with lobby code
+const joinLobby = async (req, res) => {
     try {
-        const data = await lobbyService.join(req);
+        const data = await lobbyService.joinLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const play = async (req, res) => {
+// play lobby
+const playLobby = async (req, res) => {
     try {
-        const data = await lobbyService.play(req);
+        const data = await lobbyService.playLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-const status = async (req, res) => {
+const statusLobby = async (req, res) => {
     try {
-        const data = await lobbyService.status(req);
+        const data = await lobbyService.statusLobby(req);
         res.send(data);
     } catch (error) {
         res.send(error);
     }
 };
 
-module.exports = { create,join,play,status };
+
+
+const startRound = async (req, res) => {
+    try {
+        const data = await lobbyService.startRound(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const answerQuestions = async (req, res) => {
+    try {
+        const data = await lobbyService.answerQuestions(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+
+const commonQuestion = async (req, res) => {
+    try {
+        const data = await lobbyService.commonQuestion(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const votingQuestions = async (req, res) => {
+    try {
+        const data = await lobbyService.votingQuestions(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const roundWinner = async (req, res) => {
+    try {
+        const data = await lobbyService.roundWinner(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const lobbyWinner = async (req, res) => {
+    try {
+        const data = await lobbyService.lobbyWinner(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const getLobbies= async (req, res) => {
+    try {
+        const data = await lobbyService.getLobbies(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+const getWaitingLobbies= async (req, res) => {
+    try {
+        const data = await lobbyService.getWaitingLobbies(req);
+        res.send(data);
+    } catch (error) {
+        res.send(error);
+    }
+};
+
+module.exports = {
+    createLobby,
+    joinLobby,
+    playLobby,
+    statusLobby,
+    startRound,
+    answerQuestions,
+    commonQuestion,
+    votingQuestions,
+    roundWinner,
+    lobbyWinner,
+    getLobbies,
+    getWaitingLobbies,
+};
