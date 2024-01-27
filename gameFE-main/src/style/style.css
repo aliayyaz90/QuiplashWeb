@@ -1,0 +1,257 @@
+.form-box {
+  margin-top: 20px;
+  background: #292972;
+  height: 320px;
+  border: 1px solid white;
+  width: 500px;
+  border-radius: 15px;
+  padding: 30px;
+}
+.form-box-common {
+  margin-top: 20px;
+  background: #292972;
+  height: 320px;
+  border: 1px solid white;
+  width: 500px;
+  border-radius: 15px;
+  padding: 30px;
+  overflow-y: scroll;
+}
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+}
+
+.img-div {
+  margin-left: 20px;
+}
+.game-btn {
+  font-size: 25px;
+  background: #5eb2a3;
+  color: white;
+  height: 65px;
+  font-weight: 900;
+  border-radius: 15px;
+  text-transform: uppercase;
+}
+.game-btn:hover {
+  font-size: 25px;
+  background: #5eb2a3 !important;
+  color: white !important;
+  height: 65px !important;
+  font-weight: 900 !important;
+  border-radius: 15px !important;
+  text-transform: uppercase !important;
+  border: 1px solid white !important;
+}
+.game-btn-2 {
+  margin-left: 20px;
+}
+.create-btn {
+  font-size: 23px;
+  background: #5eb2a3;
+  color: white;
+  height: 43px;
+  font-weight: 900;
+  border-radius: 15px;
+  text-transform: uppercase;
+  /* margin-top: 15px; */
+}
+.create-btn:hover {
+  font-size: 23px;
+  background: #5eb2a3 !important;
+  color: white !important;
+  height: 43px !important;
+  font-weight: 900 !important;
+  border-radius: 15px !important;
+  text-transform: uppercase !important;
+  border: 1px solid white !important;
+  /* margin-top: 15px !important;  */
+}
+.input-field {
+  background: #54548e;
+  height: 60px;
+  border-radius: 20px;
+}
+.custom-label {
+  font-weight: 900;
+}
+.ant-form-item .ant-form-item-label > label {
+  font-size: 25px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: white;
+}
+.create-btn-2 {
+  font-size: 23px;
+  background: #5eb2a3;
+  color: white;
+  height: 43px;
+  font-weight: 900;
+  border-radius: 15px;
+  text-transform: uppercase;
+  /* margin-top: 140px; */
+}
+.create-btn-2:hover {
+  font-size: 23px;
+  background: #5eb2a3 !important;
+  color: white !important;
+  height: 43px !important;
+  font-weight: 900 !important;
+  border-radius: 15px !important;
+  text-transform: uppercase !important;
+  border: 1px solid white !important;
+  /* margin-top: 140px !important; */
+}
+.ant-input {
+  color: white;
+}
+.code {
+  font-size: 20px;
+  font-weight: 900;
+  color: white;
+  text-align: center;
+  padding-top: 50px;
+}
+.icon {
+  font-size: 25px;
+  color: white;
+}
+.code-text {
+  font-size: 25px;
+  color: white;
+}
+.ant-btn-default:disabled {
+  color: white;
+}
+.ant-popconfirm-description {
+  font-size: 15px;
+}
+.ant-popconfirm-title {
+  font-size: 20px;
+}
+.ant-btn.ant-btn-sm {
+  font-size: 17px;
+  height: 35px;
+  padding: 0px 7px;
+  border-radius: 4px;
+  width: 30%;
+}
+.ant-popconfirm.ant-popover {
+  font-size: 19px;
+}
+.questions {
+  font-size: 25px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: white;
+}
+.lastquestion {
+  font-size: 25px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: white;
+  padding-top: 125px;
+  padding-left: 55px;
+}
+.over {
+  font-size: 25px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: white;
+  padding-top: 50px;
+}
+.modal-div {
+  background: #3b46b9;
+  height: 500px;
+  border: 3px solid #39d0dd;
+  border-radius: 30px;
+}
+.ant-modal-content {
+  background-color: #343492 !important;
+  border-radius: 30px !important;
+}
+.modal-text {
+  color: #39d0dd;
+  text-transform: uppercase;
+  font-weight: bolder;
+  font-size: 50px;
+}
+.modal-text-inner {
+  color: white;
+  text-transform: uppercase;
+  font-weight: bolder;
+  font-size: xx-large;
+  margin-top: -25px;
+  padding-left: 15px;
+}
+.text-inner {
+  color: white;
+  font-weight: 900;
+  font-size: 25px;
+  margin-top: -25px;
+}
+
+.alert-btn {
+  color: #39d0dd;
+  font-weight: 900;
+  font-size: 30px;
+  height: 100px;
+  width: 100px;
+  background-color: #363798;
+  border: 2px solid #39d0dd;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.btn-text-modal {
+  color: #39d0dd;
+  text-transform: uppercase;
+  font-size: 23px;
+  font-weight: 900;
+  text-align: center;
+  margin: 0px;
+}
+.alert-btn-arrow {
+  color: #39d0dd;
+  font-weight: 900;
+  font-size: 50px;
+  height: 100px;
+  width: 100px;
+  background-color: #363798;
+  border: 2px solid #39d0dd;
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.Commonquestions{
+  font-size: 21px;
+  font-weight: 100;
+  color: white;
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: white; 
+  border-radius: 15px;
+}
+@media screen and (max-width: 550px) {
+  .form-box {
+   width: 300px;
+  }
+  .game-btn{
+    font-size: 14px;
+    height: 40px;
+  }
+  .text-inner{
+    font-size: 17px;
+  }
+  .modal-text-inner{
+    font-size: 30px;
+  }
+}
